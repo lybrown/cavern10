@@ -7,7 +7,7 @@ dlist equ font+$1D0
     org $80
 rowptr org *+2
 rowinc org *+2
-freqptr org *+1
+tick org *+1
 vfine org *+1
 
     ift 1
@@ -30,7 +30,10 @@ vfine org *+1
     dta $5
     dta $41,a(dlist)
 freqtable3
-    :4 dta $8D,$97,$A1,$AB
+    :4 dta $4B,$55,$5F,$69
+pf2table
+    :8 dta $0E
+    :8 dta $2A
 
     els
     org font
@@ -38,10 +41,10 @@ freqtable3
     eif
 
     org $1000
+freqtable2
+    :4 dta $8D,$97,$A1,$AB
 freqtable
     dta $70,$71,$72,$73,$74,$73,$72,$71
-freqtable2
-    :4 dta $4B,$55,$5F,$69
 main
     sei
     mva #0 NMIEN
@@ -53,7 +56,7 @@ main
     and #$FE
     sta PORTB
     mwa #frame NMIVEC
-    mwa #0 freqptr
+    mwa #0 tick
     sta vfine
     mva #$40 NMIEN
     mva #$3D DMACTL
@@ -108,12 +111,12 @@ scrolldone
 
     ;mwa #dlist DLISTL
 
-    ldx freqptr
+    lda tick
+    and #15
+    tax
     mva freqtable3,x AUDF1
-    inx
-    txa
-    and #$3
-    sta freqptr
+    mva pf2table,x COLPF2
+    inc tick
 
     pla:tax
     pla:tay

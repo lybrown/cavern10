@@ -16,6 +16,8 @@ my %abbrev = qw(
     SOUND    SO.
     GOSUB    GOS.
     PAUSE    PA.
+    REPEAT   REP.
+    UNTIL    U.
 );
 
 sub main {

@@ -96,20 +96,21 @@ move adr("<<<join "",map chr,@gtia>>>"),$D000,<<<scalar @gtia>>>:
 do:
 s=$5000:
 x=100:
-sound 0,0,10,10:
+sound 0,0,10,6:
 poke $D01E,0:
 repeat:
     v=v+1:
     if v=16:v=0:s=s+32:endif:
-    while peek($d40b)<100:wend:
+    while peek($d40b)<105:wend:
     poke $D405,v:
     dpoke $49D1,s:
-    :
     j=peek($D300):
     x=x+(j=$F7)-(j=$FB):
     poke $D000,x:
+    :
     move $49E3+v,$D200,1:
+    move $49F3+v,$D018,1:
 until peek($D004) or peek($D00C):
-sound 0,8,0,10:fori=0to999:nexti:
-poke $D000,100:
+sound 0,48,0,15:fori=0to999:nexti:
+poke $D000,0:
 loop:
