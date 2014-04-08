@@ -59,7 +59,6 @@ pause 0:
 >>> 0, # NMIEN
 >>> );
 move adr("<<<join "",map chr,@antic>>>"),$D400,<<<scalar @antic>>>:
-    :
 >>> @gtia = (
 >>> 0x78, # HPOSP0
 >>> 0x00, # HPOSP1
@@ -93,19 +92,24 @@ move adr("<<<join "",map chr,@antic>>>"),$D400,<<<scalar @antic>>>:
 >>> 3, # GRACTL
 >>> );
 move adr("<<<join "",map chr,@gtia>>>"),$D000,<<<scalar @gtia>>>:
+    :
 do:
 s=$5000:
 x=100:
+sound 0,0,10,10:
 poke $D01E,0:
-while not peek($D004):
+repeat:
     v=v+1:
     if v=16:v=0:s=s+32:endif:
     while peek($d40b)<100:wend:
     poke $D405,v:
-    :
     dpoke $49D1,s:
+    :
     j=peek($D300):
     x=x+(j=$F7)-(j=$FB):
     poke $D000,x:
-wend:
+    move $49E3+v,$D200,1:
+until peek($D004) or peek($D00C):
+sound 0,8,0,10:fori=0to999:nexti:
+poke $D000,100:
 loop:

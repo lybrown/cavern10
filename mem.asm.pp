@@ -29,6 +29,8 @@ vfine org *+1
     :12 dta $25
     dta $5
     dta $41,a(dlist)
+freqtable3
+    :4 dta $8D,$97,$A1,$AB
 
     els
     org font
@@ -39,9 +41,7 @@ vfine org *+1
 freqtable
     dta $70,$71,$72,$73,$74,$73,$72,$71
 freqtable2
-    dta $4B,$55,$5F,$69
-freqtable3
-    dta $8D,$97,$A1,$AB
+    :4 dta $4B,$55,$5F,$69
 main
     sei
     mva #0 NMIEN
