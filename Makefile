@@ -1,4 +1,5 @@
 test.run:
+test.obx: rows.bin rows2.bin pm.bin scr.bin font.bin
 
 SHELL=bash
 dude.asm: dude.png

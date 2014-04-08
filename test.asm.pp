@@ -4,6 +4,11 @@ pm equ $3000
 ch equ $3800
 rows equ $3C00
 
+    org $80
+rowptr org *+2
+rowinc org *+2
+freqptr org *+1
+
     org pm+$300
     ins 'pm.bin'
     org ch
@@ -11,13 +16,19 @@ rows equ $3C00
     org scr
     ins 'scr.bin'
     org rows
-    ins 'rows.bin'
-    ins 'rows2.bin'
+    ins 'rows.bin',0,$200
+    ins 'rows2.bin',$200,$100
 
     org $1000
 dlist
-    :14 dta $65,a(scr)
-    dta $41,a(dlist)
+    :15 dta $65,a(scr)
+    dta $41,a(*)
+freqtable
+    dta $70,$71,$72,$73,$74,$73,$72,$71
+freqtable2
+    dta $4B,$55,$5F,$69
+freqtable3
+    dta $8D,$97,$A1,$AB
 main
     sei
     mva #0 NMIEN
@@ -29,7 +40,8 @@ main
     and #$FE
     sta PORTB
     mwa #frame NMIVEC
-    mwa #rows $80
+    mwa #rows rowptr
+    mwa #0 freqptr
     mva #$40 NMIEN
     mva #$3D DMACTL
     mva #2 CHACTL
@@ -55,6 +67,7 @@ main
     mva #0 SIZEP1
     mva #3 SIZEP2
     mva #3 SIZEP3
+    mva #$A4 AUDC1
     jmp *
 frame
     pha
@@ -62,22 +75,31 @@ frame
     tya:pha
 
     ldy #0
->>> for $i (0 .. 13) {
-    mva ($80),y dlist+1+<<<$i*3>>>
+>>> for $i (0 .. 14) {
+    mva (rowptr),y dlist+1+<<<$i*3>>>
     iny
-    mva ($80),y dlist+2+<<<$i*3>>>
+    mva (rowptr),y dlist+2+<<<$i*3>>>
     iny
 >>> }
-    mwa #0 $82
+    mwa #0 rowinc
     lda PORTA
     lsr @
-    scs:mwa #-2 $82
+    scs:mwa #-2 rowinc
     lsr @
-    scs:mwa #2 $82
-    lda $82
-    add:sta $80
-    lda $83
-    adc:sta $81
+    scs:mwa #2 rowinc
+    lda rowinc
+    add:sta rowptr
+    lda rowinc+1
+    adc:sta rowptr+1
+
+    mwa #dlist DLISTL
+
+    ldx freqptr
+    mva freqtable3,x AUDF1
+    inx
+    txa
+    and #$3
+    sta freqptr
 
     pla:tax
     pla:tay
