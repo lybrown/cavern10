@@ -1,0 +1,57 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my %abbrev = qw(
+    MOVE     M.
+    FOR      F.
+    GOTO     G.
+    WHILE    W.
+    WEND     WE.
+    ELSE     EL.
+    ENDIF    END.
+    DPOKE    DP.
+    RETURN   RET.
+    GRAPHICS GR.
+    SOUND    SO.
+    GOSUB    GOS.
+    PAUSE    PA.
+);
+
+sub main {
+    my @st = split /:\s*\n/, join "", <>;
+    for (@st) {
+        if (/adr/) {
+            s/move\s*adr/M.ADR/i;
+        } else {
+            $_ = uc $_;
+            s/([a-z]+)/$abbrev{$1} || $1/gie;
+            s/(\w) +(and|div|mod|or)/${1}___$2/gi;
+            s/\s*//g;
+            s/___/ /g;
+        }
+    }
+    my $l = 0;
+    while (@st) {
+        my $line = $l;
+        my $sep = "";
+        while (@st and length("$line$sep$st[0]") <= 252) {
+            if (not $st[0]) {
+                shift @st;
+                last;
+            }
+            $line .= $sep . shift @st;
+            $sep = ":";
+        }
+        if (not $line) {
+            die "ERROR: Statement too long. Length=",length($st[0]),
+                "\n  $line$sep$st[0]\n";
+        }
+        print $line, "\x{9b}";
+        #print $line, "\n";
+        ++$l;
+    }
+}
+
+main();
+

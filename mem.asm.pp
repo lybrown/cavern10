@@ -8,25 +8,27 @@ dlist equ font+$1D0
 rowptr org *+2
 rowinc org *+2
 freqptr org *+1
+vfine org *+1
 
     ift 1
     org font
     ins 'all.bin',0,$400
     org pm+$300
-    :232 dta $0A
+    :233-16 dta $0A
     org pm+$400
     ins 'pm.bin',$100,$100
     org pm+$600
-    :232 dta $FF
+    :233-16 dta $FF
     org pm+$700
-    :232 dta $FF
+    :233-16 dta $FF
     org scr
     ins 'all.bin',$400
 
     org dlist
     dta $65,a(scr)
-    :13 dta $25
-    dta $41,a(*)
+    :12 dta $25
+    dta $5
+    dta $41,a(dlist)
 
     els
     org font
@@ -52,6 +54,7 @@ main
     sta PORTB
     mwa #frame NMIVEC
     mwa #0 freqptr
+    sta vfine
     mva #$40 NMIEN
     mva #$3D DMACTL
     mva #2 CHACTL
@@ -84,7 +87,12 @@ frame
     txa:pha
     tya:pha
 
+    inc vfine
+    lda vfine
+    cmp #16
+    bne scrolldone
     mwa #0 rowinc
+    sta vfine
     lda PORTA
     lsr @
     scs:mwa #-$20 rowinc
@@ -95,7 +103,10 @@ frame
     lda rowinc+1
     adc:sta dlist+2
 
-    mwa #dlist DLISTL
+scrolldone
+    mva vfine VSCROL
+
+    ;mwa #dlist DLISTL
 
     ldx freqptr
     mva freqtable3,x AUDF1
