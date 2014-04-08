@@ -90,27 +90,41 @@ move adr("<<<join "",map chr,@antic>>>"),$D400,<<<scalar @antic>>>:
 >>> 0x24, # PRIOR
 >>> 0, # VDELAY
 >>> 3, # GRACTL
+>>> 0, # HITCLR
 >>> );
 move adr("<<<join "",map chr,@gtia>>>"),$D000,<<<scalar @gtia>>>:
     :
-do:
 s=$5000:
 x=100:
+b=255:
 sound 0,0,10,6:
-poke $D01E,0:
+>>>#poke $D01E,0:
 repeat:
+    v=v+1:
+    j=peek($D300):
+    i=(j=$F7)-(j=$FB):
+    while peek($d40b)<105:wend:
+    poke $D405,v:
+    dpoke $49D1,s:
+    x=x+i:
+    poke $D000,x:
+    move $49E3+v,$D200,1:
+    :
+    if b<246:-move $4DFC,$4D00+b,6:b=b+4:else:
+    if not peek($D010):b=40:poke $D001,x+4:endif:endif:
     v=v+1:
     if v=16:v=0:s=s+32:endif:
     while peek($d40b)<105:wend:
     poke $D405,v:
-    dpoke $49D1,s:
-    j=peek($D300):
-    x=x+(j=$F7)-(j=$FB):
+    x=x+i:
     poke $D000,x:
+    dpoke $49D1,s:
     :
     move $49E3+v,$D200,1:
     move $49F3+v,$D018,1:
 until peek($D004) or peek($D00C):
-sound 0,48,0,15:fori=0to999:nexti:
-poke $D000,0:
-loop:
+sound 0,48,0,15:for i=0 to 999:next i:
+poke $D40E,$40:
+graphics 0:
+move $4A10,$D000,16:
+run:

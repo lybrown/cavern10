@@ -34,6 +34,8 @@ freqtable3
 pf2table
     :8 dta $0E
     :8 dta $2A
+bullet
+    ;dta $0A,$0A,$CA,$CA
 
     els
     org font

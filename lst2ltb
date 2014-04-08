@@ -18,6 +18,7 @@ my %abbrev = qw(
     PAUSE    PA.
     REPEAT   REP.
     UNTIL    U.
+    NEXT     N.
 );
 
 sub main {
