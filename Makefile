@@ -1,5 +1,18 @@
+mem.run:
+mem.obx: all.bin pm.bin
+
 test.run:
 test.obx: rows.bin rows2.bin pm.bin scr.bin font.bin
+
+all.bin: rows.bin rows2.bin scr.bin font.bin pm.bin ex.pl
+	./ex.pl $(filter %.bin,$^) $(out)
+
+all.bin.lz4: all.bin
+	lz4 -f -9 $< $@
+
+all.bin.lz4ish: all.bin.lz4
+	lz4 -f -d $< dummy
+	mv side.lz4ish $@
 
 SHELL=bash
 dude.asm: dude.png
