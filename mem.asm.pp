@@ -36,6 +36,54 @@ pf2table
     :8 dta $2A
 bullet
     ;dta $0A,$0A,$CA,$CA
+antic
+    dta $3D ; DMACTL
+    dta $2 ; CHACTL
+    dta $D0 ; DLISTL
+    dta $49 ; DLISTH
+    dta $48 ; HSCROL
+    dta $48 ; VSCROL
+    dta $48 ; --
+    dta $48 ; PMBASE
+    dta $48 ; --
+    dta $48 ; CHBASE
+    dta $48 ; WSYNC
+    dta $48 ; VCOUNT
+    dta $48 ; PENH
+    dta $48 ; PENV
+    dta $0 ; NMIEN
+gtia
+    dta $00 ; HPOSP0
+    dta $00 ; HPOSP1
+    dta $20 ; HPOSP2
+    dta $C0 ; HPOSP3
+    dta $40 ; HPOSM0
+    dta $BF ; HPOSM1
+    dta $00 ; HPOSM2
+    dta $00 ; HPOSM3
+    dta $1 ; SIZEP0
+    dta $0 ; SIZEP1
+    dta $3 ; SIZEP2
+    dta $3 ; SIZEP3
+    dta $0 ; SIZEM
+    dta $0 ; GRAFP0
+    dta $0 ; GRAFP1
+    dta $0 ; GRAFP2
+    dta $0 ; GRAFP3
+    dta $0 ; GRAFM
+    dta $88 ; COLPM0
+    dta $88 ; COLPM1
+    dta $44 ; COLPM2
+    dta $44 ; COLPM3
+    dta $44 ; COLPF0
+    dta $88 ; COLPF1
+    dta $2A ; COLPF2
+    dta $26 ; COLPF3
+    dta $0 ; COLBAK
+    dta $24 ; PRIOR
+    dta $0 ; VDELAY
+    dta $3 ; GRACTL
+    dta $0 ; HITCLR
 
     els
     org font

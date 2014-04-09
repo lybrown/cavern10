@@ -10,9 +10,11 @@
 >>> for $i (0 .. $#parts) {
 >>>   $part = $parts[$i];
 >>>   $quotecount = ($part =~ tr/"/"/) / 2;
-move adr("<<<$part>>>"),<<<0xA000+$p>>>,<<<length($part)-$quotecount>>>:
->>>   $p += length($part) - $quotecount;
+>>>   $len = length($part) - $quotecount;
+move adr("<<<$part>>>"),<<<0xA000+$p>>>,<<<$len>>>:
+>>>   $p += $len;
 >>> }
+>>> # Decompress LZ4-ish data
 i=$A000:
 o=$4800:
 while i< <<<0xA000+$count>>>:
@@ -60,7 +62,7 @@ pause 0:
 >>> );
 move adr("<<<join "",map chr,@antic>>>"),$D400,<<<scalar @antic>>>:
 >>> @gtia = (
->>> 0x78, # HPOSP0
+>>> 0x00, # HPOSP0
 >>> 0x00, # HPOSP1
 >>> 0x20, # HPOSP2
 >>> 0xC0, # HPOSP3
@@ -94,24 +96,41 @@ move adr("<<<join "",map chr,@antic>>>"),$D400,<<<scalar @antic>>>:
 >>> );
 move adr("<<<join "",map chr,@gtia>>>"),$D000,<<<scalar @gtia>>>:
     :
+>>>#do:
+>>>#v=0:
+>>>#poke $D01E,0:
 s=$5000:
 x=100:
 b=255:
 sound 0,0,10,6:
->>>#poke $D01E,0:
 repeat:
     v=v+1:
     j=peek($D300):
     i=(j=$F7)-(j=$FB):
-    while peek($d40b)<105:wend:
-    poke $D405,v:
-    dpoke $49D1,s:
     x=x+i:
+    while peek($d40b)<110:wend:
+    poke $D405,v:
     poke $D000,x:
     move $49E3+v,$D200,1:
+    if b<246:
+        if peek($D005):
     :
-    if b<246:-move $4DFC,$4D00+b,6:b=b+4:else:
-    if not peek($D010):b=40:poke $D001,x+4:endif:endif:
+            move $4800,s+32*((b+v) div 16)+k-16,4:
+            move $4800,$4D00+b,6:
+            poke $D01E,0:
+            b=255:
+        else:
+            -move $4DFC,$4D00+b,6:
+            b=b+4:
+        endif:
+    else:
+        if not peek($D010):
+            b=40:
+            k=x div 4:
+            poke $D001,x+4:
+        endif:
+    :
+    endif:
     v=v+1:
     if v=16:v=0:s=s+32:endif:
     while peek($d40b)<105:wend:
@@ -119,11 +138,13 @@ repeat:
     x=x+i:
     poke $D000,x:
     dpoke $49D1,s:
-    :
     move $49E3+v,$D200,1:
     move $49F3+v,$D018,1:
 until peek($D004) or peek($D00C):
+    :
 sound 0,48,0,15:for i=0 to 999:next i:
+>>>#poke $D000,0:
+>>>#loop:
 poke $D40E,$40:
 graphics 0:
 move $4A10,$D000,16:
