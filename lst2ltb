@@ -46,9 +46,10 @@ sub main {
             $line .= $sep . shift @st;
             $sep = ":";
         }
-        if (not $line) {
-            die "ERROR: Statement too long. Length=",length($st[0]),
+        if (not $sep) {
+            warn "WARNING: Statement too long. Length=",length($st[0]),
                 "\n  $line$sep$st[0]\n";
+            $line .= shift @st;
         }
         print $line, "\x{9b}";
         #print $line, "\n";
