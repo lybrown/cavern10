@@ -21,6 +21,12 @@ Features
 
 * Over 12K of game data compressed into 1272 bytes in slighty modified LZ4 format
 * Unpacker takes about one line. (line 6)
+* Full frame rate
+
+Limitations
+-----------
+
+* No weapons, so it's reduced to just navigating past obstacles
 
 Download
 --------
