@@ -1,0 +1,138 @@
+Index: Makefile
+===================================================================
+--- Makefile	(revision 116)
++++ Makefile	(working copy)
+@@ -39,7 +39,8 @@
+ DESTDIR=
+ PREFIX=/usr
+ CC:=$(CC)
+-CFLAGS+= -I. -std=c99 -O3 -Wall -W -Wundef -DLZ4_VERSION=\"$(RELEASE)\"
++#CFLAGS+= -I. -std=c99 -O3 -Wall -W -Wundef -DLZ4_VERSION=\"$(RELEASE)\"
++CFLAGS+= -I. -std=c99 -Wall -W -Wundef -DLZ4_VERSION=\"$(RELEASE)\"
+ 
+ LIBDIR=$(PREFIX)/lib
+ INCLUDEDIR=$(PREFIX)/include
+Index: lz4.c
+===================================================================
+--- lz4.c	(revision 116)
++++ lz4.c	(working copy)
+@@ -168,8 +168,8 @@
+    Includes
+ **************************************/
+ #include "lz4.h"
++#include <stdio.h>
+ 
+-
+ /**************************************
+    Basic Types
+ **************************************/
+@@ -738,7 +738,18 @@
+     BYTE* const oend = op + outputSize;
+     BYTE* cpy;
+     BYTE* oexit = op + targetOutputSize;
++    BYTE *runs, *matchs;
++    int runl, matchl;
++    int offset;
++    size_t ii;
++    size_t oo;
+ 
++    FILE *side = fopen("side.lz4ish", "wb");
++    if (!side) {
++        fprintf(stderr, "ERROR: Cannot open side.lz4ish");
++        exit(1);
++    }
++
+     /*const size_t dec32table[] = {0, 3, 2, 3, 0, 0, 0, 0};   / static reduces speed for LZ4_decompress_safe() on GCC64 */
+     const size_t dec32table[] = {4-0, 4-3, 4-2, 4-3, 4-0, 4-0, 4-0, 4-0};   /* static reduces speed for LZ4_decompress_safe() on GCC64 */
+     static const size_t dec64table[] = {0, 0, 0, (size_t)-1, 0, 1, 2, 3};
+@@ -756,6 +767,9 @@
+         unsigned token;
+         size_t length;
+ 
++        ii = (int)ip - (int)source;
++        oo = (int)op - (int)dest;
++
+         /* get runlength */
+         token = *ip++;
+         if ((length=(token>>ML_BITS)) == RUN_MASK)
+@@ -770,6 +784,8 @@
+ 
+         /* copy literals */
+         cpy = op+length;
++        runs = op;
++        runl = length;
+         if (((endOnInput) && ((cpy>(partialDecoding?oexit:oend-MFLIMIT)) || (ip+length>iend-(2+1+LASTLITERALS))) )
+             || ((!endOnInput) && (cpy>oend-COPYLENGTH)))
+         {
+@@ -791,6 +807,7 @@
+         LZ4_WILDCOPY(op, ip, cpy); ip -= (op-cpy); op = cpy;
+ 
+         /* get offset */
++        offset = A16(ip);
+         LZ4_READ_LITTLEENDIAN_16(ref,cpy,ip); ip+=2;
+         if ((prefix64k==noPrefix) && (unlikely(ref < (BYTE* const)dest))) goto _output_error;   /* Error : offset outside destination buffer */
+ 
+@@ -806,6 +823,8 @@
+             }
+         }
+ 
++        matchs = op;
++        matchl = length;
+         /* copy repeated sequence */
+         if (unlikely((op-ref)<(int)STEPSIZE))
+         {
+@@ -832,8 +851,40 @@
+             continue;
+         }
+         LZ4_WILDCOPY(op, ref, cpy);
++        fprintf(stderr, "i: %04x o: %04x token: %02x offset: %04x rl: %02x ml: %03x lit(",
++            ii, oo, token, offset, runl, matchl);
++        fputc(token, side);
++        fputc((unsigned char)(offset&0xFF), side);
++        fputc((unsigned char)(offset>>8), side);
++        if (offset > 65535) {
++            fprintf(stderr, "ERROR: offset larger than 65535: %d\n", offset);
++        }
++        if (runl >= 15) {
++            //fprintf(stderr, "INFO: Writing Long runl: %02x\n", runl);
++            fputc((unsigned char)(runl&0xFF), side);
++            if (runl > 255) {
++                fprintf(stderr, "ERROR: runl larger than 255: %d\n", runl);
++            }
++        }
++        if (matchl >= 15) {
++            //fprintf(stderr, "INFO: Writing Long matchl: %03x\n", matchl);
++            fputc((unsigned char)(matchl&0xFF), side);
++            fputc((unsigned char)(matchl>>8), side);
++            if (matchl > 65535) {
++                fprintf(stderr, "ERROR: matchl larger than 65535: %d\n", matchl);
++            }
++        }
++        while (runl--) {
++            fputc(*runs, side);
++            fputc(*runs++, stderr);
++        }
++        fprintf(stderr, ")\n");
++        //while (matchl--) fputc(*matchs++, side);
+         op=cpy;   /* correction */
+     }
++    fputc(0, side);
++    fputc(0, side);
++    fputc(0, side);
+ 
+     /* end of decoding */
+     if (endOnInput)
+Index: programs/Makefile
+===================================================================
+--- programs/Makefile	(revision 116)
++++ programs/Makefile	(working copy)
+@@ -34,7 +34,8 @@
+ DESTDIR=
+ PREFIX=/usr
+ CC:=$(CC)
+-CFLAGS+= -std=c99 -O3 -Wall -W -Wundef -DLZ4_VERSION=\"$(RELEASE)\"
++#CFLAGS+= -std=c99 -O3 -Wall -W -Wundef -DLZ4_VERSION=\"$(RELEASE)\"
++CFLAGS+= -std=c99 -Wall -W -Wundef -DLZ4_VERSION=\"$(RELEASE)\"
+ FLAGS= -I.. $(CFLAGS)
+ 
+ BINDIR=$(PREFIX)/bin
