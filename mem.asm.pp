@@ -84,6 +84,8 @@ gtia
     dta $0 ; VDELAY
     dta $3 ; GRACTL
     dta $0 ; HITCLR
+intromusic
+    :16 dta $70,$71,$72,$73,$74,$73,$72,$71
 
     els
     org font
@@ -140,10 +142,10 @@ frame
     txa:pha
     tya:pha
 
-    inc vfine
-    lda vfine
-    cmp #16
-    bne scrolldone
+;    inc vfine
+;    lda vfine
+;    cmp #16
+;    bne scrolldone
     mwa #0 rowinc
     sta vfine
     lda PORTA
@@ -156,8 +158,8 @@ frame
     lda rowinc+1
     adc:sta dlist+2
 
-scrolldone
-    mva vfine VSCROL
+;scrolldone
+;    mva vfine VSCROL
 
     ;mwa #dlist DLISTL
 

@@ -47,6 +47,7 @@ move $4A03,$D400,15:
 :
 move $4A12,$D000,31:
 >>> $simple = 1;
+>>> $pal = 1;
 >>> if ($simple) {
 do:
 v=0:
@@ -59,15 +60,26 @@ repeat:
     if v=16:v=0:s=s+32:endif:
     j=peek($D300):
     x=x+(j=$F7)-(j=$FB):
-    while peek($d40b)<110:wend:
+    while peek($d40b)<82:wend:
     :
-    poke $D405,v:
     dpoke $49D1,s:
+    poke $D405,v:
     poke $D000,x:
+>>> if ($pal) {
     move $49E3+v,$D200,1:
     move $49F3+v,$D018,1:
+>>> }
 until peek($D004) or peek($D00C):
-sound 0,48,0,15:for i=0 to 999:next i:
+if s>=$76E0:
+    for i=0 to 128:
+        move $4A31+i,$D200,1:
+        while peek($d40b)>12:wend:
+    next i:
+    :
+else:
+    sound 0,48,0,15:
+endif:
+for i=0 to 999:next i:
 poke $D000,0:
 loop:
 >>> } else {
@@ -80,7 +92,7 @@ repeat:
     j=peek($D300):
     i=(j=$F7)-(j=$FB):
     x=x+i:
-    while peek($d40b)<110:wend:
+    while peek($d40b)<82:wend:
     poke $D405,v:
     poke $D000,x:
     move $49E3+v,$D200,1:
@@ -105,7 +117,7 @@ repeat:
     endif:
     v=v+1:
     if v=16:v=0:s=s+32:endif:
-    while peek($d40b)<105:wend:
+    while peek($d40b)<82:wend:
     poke $D405,v:
     x=x+i:
     poke $D000,x:
