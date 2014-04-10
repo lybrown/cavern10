@@ -27,3 +27,9 @@ Download
 
 * [Cavern10.atr](https://github.com/lybrown/cavern10/raw/master/Cavern10.atr) (PAL)
 * [Cavern10-NTSC.atr](https://github.com/lybrown/cavern10/raw/master/Cavern10-NTSC.atr) (NTSC, no sound or animation)
+
+Links
+-----
+
+* [Caverns of Mars](http://www.atarimania.com/game-atari-400-800-xl-xe-caverns-of-mars_11567.html)
+* [lz4](https://code.google.com/p/lz4/)
